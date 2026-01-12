@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Simple GPA Calculator</title>
+    <style>
+        /* Human-designed CSS */
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #fafafa;
+            --card: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #d1d5db;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --danger: #dc2626;
+        }
+
+        [data-theme="dark"] {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --bg: #111827;
+            --card: #1e2937;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border: #374151;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: Georgia, serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto 30px;
+            background: var(--card);
+            padding: 28px 32px 25px 30px;
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--primary);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 23px;
+            margin-bottom: 8px;
+            font-weight: normal;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 28px;
+            font-size: 14px;
+            margin-left: 3px;
+        }
+
+        .course-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 35px;
+            gap: 11px 9px;
+            margin-bottom: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 5px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+            font-family: Arial, sans-serif;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 9px 11px;
+            border: 1px solid var(--border);
+            border-radius: 3px 5px 4px 2px;
+            font-size: 14px;
+            background: var(--card);
+            color: var(--text-main);
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: 1px solid var(--primary);
+            outline-offset: 1px;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 9px 11px;
+            margin-top: 18px;
+        }
+
+        .btn {
+            cursor: pointer;
+            border: 1px solid var(--border);
+            padding: 11px 15px;
+            font-size: 14px;
+            background: var(--card);
+            color: var(--text-main);
+            border-radius: 2px 4px 3px 5px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .btn:hover {
+            background: var(--bg);
+            border-color: var(--primary);
+        }
+
+        .btn-add {
+            border-style: dashed;
+        }
+
+        .btn-calc {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            font-weight: bold;
+        }
+
+        .btn-reset {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .btn-remove {
+            background: transparent;
+            color: var(--danger);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            border-color: var(--primary);
+        }
+
+        #result-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--border);
+            text-align: center;
+            display: none;
+        }
+
+        .gpa-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--card);
+            border: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        /* Ad Space Styles */
+        .ad-container {
+            max-width: 600px;
+            margin: 2rem auto 3rem;
+            padding: 1.5rem;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            text-align: center;
+            background: var(--card);
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .ad-container:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
+        }
+
+        .ad-placeholder {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .ad-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s ease;
+            font-size: 14px;
+        }
+
+        .ad-button:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 640px) {
+            body { 
+                padding: 12px; 
+                overflow-x: hidden;
+            }
+            .container { 
+                padding: 20px 25px; 
+                border-radius: 8px;
+                max-width: 100%;
+            }
+            h1 { font-size: 18px; }
+            .theme-toggle {
+                width: 38px;
+                height: 38px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .course-row { 
+                grid-template-columns: 1fr; 
+                gap: 12px;
+                margin-bottom: 16px;
+            }
+            .input-group { gap: 4px; }
+            label { font-size: 11px; }
+            input, select { 
+                padding: 10px; 
+                font-size: 13px;
+            }
+            .btn-remove { 
+                position: absolute;
+                right: 5px;
+                top: 5px;
+                font-size: 16px;
+            }
+            .container { padding: 15px 20px; }
+            .actions { gap: 8px; }
+            .btn { 
+                padding: 10px 12px; 
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .container {
+                padding: 12px 15px;
+                margin: 8px;
+            }
+            h1 { font-size: 16px; }
+            .btn { 
+                padding: 9px 11px; 
+                font-size: 12px;
+            }
+            input, select {
+                padding: 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Simple GPA Calculator</h1>
+            <p class="subtitle">Calculate your 4.0 scale semester GPA</p>
+        </header>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+            <span id="theme-icon">🌙</span>
+        </button>
+
+        <div id="course-container">
+            <!-- Row 1 -->
+            <div class="course-row">
+                <div class="input-group row-name">
+                    <label>Course Name</label>
+                    <input type="text" placeholder="e.g. Physics" class="course-name">
+                </div>
+                <div class="input-group">
+                    <label>Grade</label>
+                    <select class="grade">
+                        <option value="4.0">A (4.0)</option>
+                        <option value="3.7">A- (3.7)</option>
+                        <option value="3.3">B+ (3.3)</option>
+                        <option value="3.0">B (3.0)</option>
+                        <option value="2.7">B- (2.7)</option>
+                        <option value="2.3">C+ (2.3)</option>
+                        <option value="2.0">C (2.0)</option>
+                        <option value="1.0">D (1.0)</option>
+                        <option value="0.0">F (0.0)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Credits</label>
+                    <input type="number" class="credits" placeholder="3" min="0" step="0.5">
+                </div>
+                <button class="btn btn-remove" onclick="removeRow(this)" aria-label="Remove Course">×</button>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-add" onclick="addRow()">+ Add Course</button>
+            <button class="btn btn-calc" onclick="calculateGPA()">Calculate GPA</button>
+            <button class="btn btn-reset" onclick="resetCalculator()">Clear All Data</button>
+        </div>
+
+        <section id="result-section">
+            <p class="subtitle">Your Cumulative GPA</p>
+            <div class="gpa-circle" id="gpa-output">0.00</div>
+            <p id="feedback-msg" style="font-weight: 600;"></p>
+        </section>
+    </div>
+
+    <!-- Ad Space Outside Calculator Box -->
+    <div class="ad-container" onclick="buyAdSpace()">
+        <div class="ad-placeholder">📢 Ad Space Available</div>
+        <button class="ad-button">Buy This Ad Space</button>
+    </div>
+
+    <script>
+        // Load data from localStorage on start
+        window.onload = () => {
+            // Initialize theme
+            initializeTheme();
+            
+            const savedData = localStorage.getItem('gpaData');
+            if (savedData) {
+                restoreData(JSON.parse(savedData));
+            } else {
+                // Add validation to initial row
+                addValidationToExistingRows();
+            }
+        };
+        
+        // Theme Management
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+                updateThemeIcon(savedTheme);
+            } else if (systemPrefersDark) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                updateThemeIcon('dark');
+            } else {
+                updateThemeIcon('light');
+            }
+        }
+        
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+        
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon');
+            icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+        
+        function addValidationToExistingRows() {
+            document.querySelectorAll('.course-row').forEach(row => {
+                const nameInput = row.querySelector('.course-name');
+                const creditInput = row.querySelector('.credits');
+                
+                if (nameInput) {
+                    nameInput.addEventListener('blur', () => validateInput(nameInput, 'course-name'));
+                    nameInput.addEventListener('input', () => {
+                        nameInput.classList.remove('input-error');
+                        const errorMsg = nameInput.parentElement.querySelector('.error-message');
+                        if (errorMsg) errorMsg.classList.remove('show');
+                    });
+                }
+                
+                if (creditInput) {
+                    creditInput.addEventListener('blur', () => validateInput(creditInput, 'credits'));
+                    creditInput.addEventListener('input', () => {
+                        creditInput.classList.remove('input-error');
+                        const errorMsg = creditInput.parentElement.querySelector('.error-message');
+                        if (errorMsg) errorMsg.classList.remove('show');
+                    });
+                }
+            });
+        }
+
+        function validateInput(input, type) {
+            const value = input.value.trim();
+            const errorMsg = input.parentElement.querySelector('.error-message');
+            
+            // Remove existing error state
+            input.classList.remove('input-error');
+            if (errorMsg) errorMsg.classList.remove('show');
+            
+            if (type === 'course-name') {
+                if (!value) {
+                    showError(input, 'Course name is required');
+                    return false;
+                }
+                if (value.length > 50) {
+                    showError(input, 'Course name too long');
+                    return false;
+                }
+            }
+            
+            if (type === 'credits') {
+                const credits = parseFloat(value);
+                if (!value || isNaN(credits)) {
+                    showError(input, 'Credits are required');
+                    return false;
+                }
+                if (credits <= 0) {
+                    showError(input, 'Credits must be positive');
+                    return false;
+                }
+                if (credits > 10) {
+                    showError(input, 'Credits seem too high');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        function showError(input, message) {
+            input.classList.add('input-error');
+            let errorMsg = input.parentElement.querySelector('.error-message');
+            if (!errorMsg) {
+                errorMsg = document.createElement('div');
+                errorMsg.className = 'error-message';
+                errorMsg.style.color = 'var(--danger)';
+                errorMsg.style.fontSize = '12px';
+                errorMsg.style.marginTop = '4px';
+                input.parentElement.appendChild(errorMsg);
+            }
+            errorMsg.textContent = message;
+            errorMsg.classList.add('show');
+        }
+        
+        function clearAllErrors() {
+            document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+            document.querySelectorAll('.error-message').forEach(el => el.classList.remove('show'));
+        }
+
+        function addRow(name = '', grade = '4.0', credits = '') {
+            const container = document.getElementById('course-container');
+            const div = document.createElement('div');
+            div.className = 'course-row';
+            div.innerHTML = `
+                <div class="input-group row-name">
+                    <label>Course Name</label>
+                    <input type="text" placeholder="e.g. Physics" class="course-name" value="${name}">
+                </div>
+                <div class="input-group">
+                    <label>Grade</label>
+                    <select class="grade">
+                        <option value="4.0" ${grade == '4.0' ? 'selected' : ''}>A (4.0)</option>
+                        <option value="3.7" ${grade == '3.7' ? 'selected' : ''}>A- (3.7)</option>
+                        <option value="3.3" ${grade == '3.3' ? 'selected' : ''}>B+ (3.3)</option>
+                        <option value="3.0" ${grade == '3.0' ? 'selected' : ''}>B (3.0)</option>
+                        <option value="2.7" ${grade == '2.7' ? 'selected' : ''}>B- (2.7)</option>
+                        <option value="2.3" ${grade == '2.3' ? 'selected' : ''}>C+ (2.3)</option>
+                        <option value="2.0" ${grade == '2.0' ? 'selected' : ''}>C (2.0)</option>
+                        <option value="1.0" ${grade == '1.0' ? 'selected' : ''}>D (1.0)</option>
+                        <option value="0.0" ${grade == '0.0' ? 'selected' : ''}>F (0.0)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Credits</label>
+                    <input type="number" class="credits" placeholder="3" min="0" step="0.5" value="${credits}">
+                </div>
+                <button class="btn btn-remove" onclick="removeRow(this)" aria-label="Remove Course">×</button>
+            `;
+            container.appendChild(div);
+            
+            // Add real-time validation
+            const nameInput = div.querySelector('.course-name');
+            const creditInput = div.querySelector('.credits');
+            
+            nameInput.addEventListener('blur', () => validateInput(nameInput, 'course-name'));
+            nameInput.addEventListener('input', () => {
+                nameInput.classList.remove('input-error');
+                const errorMsg = nameInput.parentElement.querySelector('.error-message');
+                if (errorMsg) errorMsg.classList.remove('show');
+            });
+            
+            creditInput.addEventListener('blur', () => validateInput(creditInput, 'credits'));
+            creditInput.addEventListener('input', () => {
+                creditInput.classList.remove('input-error');
+                const errorMsg = creditInput.parentElement.querySelector('.error-message');
+                if (errorMsg) errorMsg.classList.remove('show');
+            });
+            
+            saveToLocal();
+        }
+
+        function removeRow(btn) {
+            const rows = document.querySelectorAll('.course-row');
+            if (rows.length > 1) {
+                btn.closest('.course-row').remove();
+                saveToLocal();
+            }
+        }
+
+        function calculateGPA() {
+            clearAllErrors();
+            
+            const rows = document.querySelectorAll('.course-row');
+            let hasErrors = false;
+            let totalPoints = 0;
+            let totalCredits = 0;
+
+            rows.forEach(row => {
+                const nameInput = row.querySelector('.course-name');
+                const gradeSelect = row.querySelector('.grade');
+                const creditInput = row.querySelector('.credits');
+                
+                // Validate inputs
+                if (!validateInput(nameInput, 'course-name')) hasErrors = true;
+                if (!validateInput(creditInput, 'credits')) hasErrors = true;
+                
+                if (!hasErrors) {
+                    const grade = parseFloat(gradeSelect.value);
+                    const credit = parseFloat(creditInput.value);
+                    
+                    totalPoints += (grade * credit);
+                    totalCredits += credit;
+                }
+            });
+
+            if (hasErrors) {
+                document.getElementById('result-section').style.display = 'none';
+                return;
+            }
+
+            if (totalCredits > 0) {
+                const gpa = (totalPoints / totalCredits).toFixed(2);
+                const output = document.getElementById('gpa-output');
+                const section = document.getElementById('result-section');
+                
+                output.innerText = gpa;
+                section.style.display = 'block';
+                
+                // Feedback message
+                const msg = document.getElementById('feedback-msg');
+                if (gpa >= 3.7) msg.innerText = "Outstanding academic performance";
+                else if (gpa >= 3.5) msg.innerText = "Excellent grades - keep it up";
+                else if (gpa >= 3.0) msg.innerText = "Good work - room to grow";
+                else if (gpa >= 2.5) msg.innerText = "Decent progress - aim higher";
+                else if (gpa >= 2.0) msg.innerText = "Passing - consider tutoring";
+                else msg.innerText = "Needs improvement - seek help";
+
+                section.scrollIntoView({ behavior: 'smooth' });
+                saveToLocal();
+            }
+        }
+
+        function saveToLocal() {
+            const rows = document.querySelectorAll('.course-row');
+            const data = Array.from(rows).map(row => ({
+                name: row.querySelector('.course-name').value,
+                grade: row.querySelector('.grade').value,
+                credits: row.querySelector('.credits').value
+            }));
+            localStorage.setItem('gpaData', JSON.stringify(data));
+        }
+
+        function restoreData(data) {
+            const container = document.getElementById('course-container');
+            container.innerHTML = '';
+            data.forEach(item => addRow(item.name, item.grade, item.credits));
+            // Add validation to restored rows
+            setTimeout(() => addValidationToExistingRows(), 100);
+        }
+
+        function resetCalculator() {
+            if (confirm("Clear all rows and data?")) {
+                localStorage.removeItem('gpaData');
+                location.reload();
+            }
+        }
+
+        function buyAdSpace() {
+            const message = `📢 AD SPACE FOR SALE 📢
+
+🎯 Target Audience: Students calculating GPA
+📱 Mobile-optimized placement
+🌙 Dark/Light mode compatible
+💰 Affordable rates available
+
+📧 Contact: ads@gpacalculator.com
+🌐 Website: gpacalculator.com/ads
+📱 Phone: (555) 123-4567
+
+🔥 Limited spots available!`;
+            
+            alert(message);
+        }
+    </script>
+</body>
+</html>
