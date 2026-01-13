@@ -1,2 +1,0 @@
-﻿# gpacalculator
-This program is to help students find their gpa. It is a simple html file.
